@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import java.sql.SQLException;
 import ni.edu.uam.facturacion.dao.CategoriaDAO;
 import ni.edu.uam.facturacion.dao.ProductoDao;
 import ni.edu.uam.facturacion.model.Categoria;
@@ -246,35 +247,55 @@ public class ProductoController {
 
     @FXML
     private void guardarProducto() {
+
         Producto producto = obtenerProductoFormulario();
 
         if (producto == null) {
             return;
         }
 
-        if (productoDao.existeCodigo(producto.getCodigo())) {
-            mostrarAlerta(
-                    "Ya existe un producto con ese código."
-            );
-            return;
-        }
+        try {
 
-        if (productoDao.guardar(producto)) {
-            mostrarInformacion(
-                    "Producto guardado correctamente."
+            if (productoDao.existeCodigo(
+                    producto.getCodigo()
+            )) {
+                mostrarAlerta(
+                        "Ya existe un producto con ese código."
+                );
+                return;
+            }
+
+            if (productoDao.guardar(producto)) {
+
+                mostrarInformacion(
+                        "Producto guardado correctamente."
+                );
+
+                cargarProductos();
+                limpiar();
+
+            } else {
+                mostrarAlerta(
+                        "No se pudo guardar el producto."
+                );
+            }
+
+        } catch (SQLException e) {
+
+            mostrarAlerta(
+                    "No fue posible completar la operación."
             );
 
-            cargarProductos();
-            limpiar();
-        } else {
-            mostrarAlerta(
-                    "No se pudo guardar el producto."
+            System.err.println(
+                    "Error al guardar producto: "
+                            + e.getMessage()
             );
         }
     }
 
     @FXML
     private void actualizarProducto() {
+
         if (productoSeleccionado == null) {
             mostrarAlerta(
                     "Seleccione un producto para actualizar."
@@ -288,34 +309,53 @@ public class ProductoController {
             return;
         }
 
-        producto.setId(productoSeleccionado.getId());
+        producto.setId(
+                productoSeleccionado.getId()
+        );
 
-        if (productoDao.existeCodigo(
-                producto.getCodigo(),
-                producto.getId()
-        )) {
+        try {
+
+            if (productoDao.existeCodigo(
+                    producto.getCodigo(),
+                    producto.getId()
+            )) {
+                mostrarAlerta(
+                        "Ya existe otro producto con ese código."
+                );
+                return;
+            }
+
+            if (productoDao.actualizar(producto)) {
+
+                mostrarInformacion(
+                        "Producto actualizado correctamente."
+                );
+
+                cargarProductos();
+                limpiar();
+
+            } else {
+                mostrarAlerta(
+                        "No se pudo actualizar el producto."
+                );
+            }
+
+        } catch (SQLException e) {
+
             mostrarAlerta(
-                    "Ya existe otro producto con ese código."
-            );
-            return;
-        }
-
-        if (productoDao.actualizar(producto)) {
-            mostrarInformacion(
-                    "Producto actualizado correctamente."
+                    "No fue posible completar la operación."
             );
 
-            cargarProductos();
-            limpiar();
-        } else {
-            mostrarAlerta(
-                    "No se pudo actualizar el producto."
+            System.err.println(
+                    "Error al actualizar producto: "
+                            + e.getMessage()
             );
         }
     }
 
     @FXML
     private void eliminarProducto() {
+
         if (productoSeleccionado == null) {
             mostrarAlerta(
                     "Seleccione un producto para eliminar."
@@ -324,9 +364,14 @@ public class ProductoController {
         }
 
         Alert confirmacion =
-                new Alert(Alert.AlertType.CONFIRMATION);
+                new Alert(
+                        Alert.AlertType.CONFIRMATION
+                );
 
-        confirmacion.setTitle("Eliminar producto");
+        confirmacion.setTitle(
+                "Eliminar producto"
+        );
+
         confirmacion.setHeaderText(null);
 
         confirmacion.setContentText(
@@ -341,19 +386,34 @@ public class ProductoController {
         if (resultado.isPresent()
                 && resultado.get() == ButtonType.OK) {
 
-            if (productoDao.eliminar(
-                    productoSeleccionado.getId()
-            )) {
-                mostrarInformacion(
-                        "Producto eliminado correctamente."
+            try {
+
+                if (productoDao.eliminar(
+                        productoSeleccionado.getId()
+                )) {
+
+                    mostrarInformacion(
+                            "Producto eliminado correctamente."
+                    );
+
+                    cargarProductos();
+                    limpiar();
+
+                } else {
+                    mostrarAlerta(
+                            "No se pudo eliminar el producto."
+                    );
+                }
+
+            } catch (SQLException e) {
+
+                mostrarAlerta(
+                        "No fue posible completar la operación."
                 );
 
-                cargarProductos();
-                limpiar();
-
-            } else {
-                mostrarAlerta(
-                        "No se pudo eliminar el producto."
+                System.err.println(
+                        "Error al eliminar producto: "
+                                + e.getMessage()
                 );
             }
         }

@@ -10,19 +10,19 @@ import java.util.List;
 
 public class ProductoDao {
 
-    public boolean guardar(Producto producto) {
+    public boolean guardar(Producto producto) throws SQLException {
         String sql = """
-                INSERT INTO producto
-                (
-                    codigo,
-                    nombre,
-                    categoria_id,
-                    precio_venta,
-                    existencia,
-                    activo
-                )
-                VALUES (?, ?, ?, ?, ?, ?)
-                """;
+            INSERT INTO producto
+            (
+                codigo,
+                nombre,
+                categoria_id,
+                precio_venta,
+                existencia,
+                activo
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -35,12 +35,7 @@ public class ProductoDao {
             ps.setInt(5, producto.getExistencia());
             ps.setBoolean(6, producto.isActivo());
 
-            ps.executeUpdate();
-            return true;
-
-        } catch (SQLException e) {
-            System.out.println("Error al guardar producto: " + e.getMessage());
-            return false;
+            return ps.executeUpdate() > 0;
         }
     }
 
@@ -96,17 +91,17 @@ public class ProductoDao {
         return productos;
     }
 
-    public boolean actualizar(Producto producto) {
+    public boolean actualizar(Producto producto) throws SQLException {
         String sql = """
-                UPDATE producto
-                SET codigo = ?,
-                    nombre = ?,
-                    categoria_id = ?,
-                    precio_venta = ?,
-                    existencia = ?,
-                    activo = ?
-                WHERE id = ?
-                """;
+            UPDATE producto
+            SET codigo = ?,
+                nombre = ?,
+                categoria_id = ?,
+                precio_venta = ?,
+                existencia = ?,
+                activo = ?
+            WHERE id = ?
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -121,18 +116,14 @@ public class ProductoDao {
             ps.setInt(7, producto.getId());
 
             return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error al actualizar producto: " + e.getMessage());
-            return false;
         }
     }
 
-    public boolean eliminar(Integer id) {
+    public boolean eliminar(Integer id) throws SQLException {
         String sql = """
-                DELETE FROM producto
-                WHERE id = ?
-                """;
+            DELETE FROM producto
+            WHERE id = ?
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -141,19 +132,15 @@ public class ProductoDao {
             ps.setInt(1, id);
 
             return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error al eliminar producto: " + e.getMessage());
-            return false;
         }
     }
 
-    public boolean existeCodigo(String codigo) {
+    public boolean existeCodigo(String codigo) throws SQLException {
         String sql = """
-                SELECT COUNT(*)
-                FROM producto
-                WHERE LOWER(codigo) = LOWER(?)
-                """;
+            SELECT COUNT(*)
+            FROM producto
+            WHERE LOWER(codigo) = LOWER(?)
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -166,21 +153,22 @@ public class ProductoDao {
                     return rs.getInt(1) > 0;
                 }
             }
-
-        } catch (SQLException e) {
-            System.out.println("Error al verificar código: " + e.getMessage());
         }
 
         return false;
     }
 
-    public boolean existeCodigo(String codigo, Integer idExcluir) {
+    public boolean existeCodigo(
+            String codigo,
+            Integer idExcluir
+    ) throws SQLException {
+
         String sql = """
-                SELECT COUNT(*)
-                FROM producto
-                WHERE LOWER(codigo) = LOWER(?)
-                AND id <> ?
-                """;
+            SELECT COUNT(*)
+            FROM producto
+            WHERE LOWER(codigo) = LOWER(?)
+            AND id <> ?
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -194,9 +182,6 @@ public class ProductoDao {
                     return rs.getInt(1) > 0;
                 }
             }
-
-        } catch (SQLException e) {
-            System.out.println("Error al verificar código: " + e.getMessage());
         }
 
         return false;
