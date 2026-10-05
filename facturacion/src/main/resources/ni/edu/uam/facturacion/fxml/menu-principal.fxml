@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.edu.uam.facturacion.controller.MenuPrincipalController">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="Archivo">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#salir" text="Salir" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Categorías">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#abrirCategorias" text="Gestionar categorías" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Productos">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#abrirProductos" text="Gestionar productos" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="15.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Sistema de Facturación" textFill="#187A8C" />
+                <Label style="-fx-font-size: 16px;" text="Persistencia de datos con PostgreSQL" textFill="#1E9DB3" />
+                <Button mnemonicParsing="false" onAction="#abrirCategorias" prefHeight="45.0" prefWidth="220.0" text="Gestionar Categorías" textFill="#25BFDA" />
+                <Button mnemonicParsing="false" onAction="#abrirProductos" prefHeight="45.0" prefWidth="220.0" text="Gestionar Productos" textFill="#25BFDA" />
+            </children>
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
+        </VBox>
+    </center>
+</BorderPane>
