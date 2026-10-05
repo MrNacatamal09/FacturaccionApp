@@ -191,4 +191,33 @@ public class CategoriaDAO {
 
         return false;
     }
+
+    public boolean tieneProductos(int categoriaId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM producto
+            WHERE categoria_id = ?
+            """;
+
+        try (
+                Connection connection = ConexionDB.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql)
+        ) {
+            ps.setInt(1, categoriaId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println(
+                    "Error al verificar productos asociados: "
+                            + e.getMessage()
+            );
+        }
+
+        return false;
+    }
 }
