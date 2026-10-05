@@ -325,6 +325,15 @@ public class CategoriaController {
             Categoria categoria
     ) {
 
+        if (categoriaDAO.tieneProductos(
+                categoria.getId()
+        )) {
+            mostrarAlerta(
+                    "No puede eliminar la categoría porque tiene productos asociados."
+            );
+            return;
+        }
+
         Alert confirmacion =
                 new Alert(
                         Alert.AlertType.CONFIRMATION
@@ -362,8 +371,7 @@ public class CategoriaController {
 
             } else {
                 mostrarAlerta(
-                        "No se pudo eliminar la categoría. "
-                                + "Puede estar siendo utilizada por un producto."
+                        "No se pudo eliminar la categoría."
                 );
             }
         }
