@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import java.sql.SQLException;
 import ni.edu.uam.facturacion.dao.CategoriaDAO;
 import ni.edu.uam.facturacion.model.Categoria;
 
@@ -181,6 +182,7 @@ public class CategoriaController {
 
     @FXML
     private void guardarCategoria() {
+
         String nombre =
                 txtNombre.getText().trim();
 
@@ -191,34 +193,48 @@ public class CategoriaController {
             return;
         }
 
-        if (categoriaDAO.existeNombre(nombre)) {
-            mostrarAlerta(
-                    "Ya existe una categoría con ese nombre."
-            );
-            return;
-        }
+        try {
 
-        Categoria categoria =
-                new Categoria();
+            if (categoriaDAO.existeNombre(nombre)) {
+                mostrarAlerta(
+                        "Ya existe una categoría con ese nombre."
+                );
+                return;
+            }
 
-        categoria.setNombre(nombre);
+            Categoria categoria =
+                    new Categoria();
 
-        categoria.setActiva(
-                chkActiva.isSelected()
-        );
+            categoria.setNombre(nombre);
 
-        if (categoriaDAO.guardar(categoria)) {
-
-            mostrarInformacion(
-                    "Categoría guardada correctamente."
+            categoria.setActiva(
+                    chkActiva.isSelected()
             );
 
-            cargarCategorias();
-            limpiar();
+            if (categoriaDAO.guardar(categoria)) {
 
-        } else {
+                mostrarInformacion(
+                        "Categoría guardada correctamente."
+                );
+
+                cargarCategorias();
+                limpiar();
+
+            } else {
+                mostrarAlerta(
+                        "No se pudo guardar la categoría."
+                );
+            }
+
+        } catch (SQLException e) {
+
             mostrarAlerta(
-                    "No se pudo guardar la categoría."
+                    "No fue posible completar la operación."
+            );
+
+            System.err.println(
+                    "Error al guardar categoría: "
+                            + e.getMessage()
             );
         }
     }
@@ -243,38 +259,50 @@ public class CategoriaController {
             return;
         }
 
-        if (categoriaDAO.existeNombre(
-                nombre,
-                categoriaSeleccionada.getId()
-        )) {
-            mostrarAlerta(
-                    "Ya existe otra categoría con ese nombre."
-            );
-            return;
-        }
+        try {
 
-        categoriaSeleccionada.setNombre(
-                nombre
-        );
+            if (categoriaDAO.existeNombre(
+                    nombre,
+                    categoriaSeleccionada.getId()
+            )) {
+                mostrarAlerta(
+                        "Ya existe otra categoría con ese nombre."
+                );
+                return;
+            }
 
-        categoriaSeleccionada.setActiva(
-                chkActiva.isSelected()
-        );
+            categoriaSeleccionada.setNombre(nombre);
 
-        if (categoriaDAO.actualizar(
-                categoriaSeleccionada
-        )) {
-
-            mostrarInformacion(
-                    "Categoría actualizada correctamente."
+            categoriaSeleccionada.setActiva(
+                    chkActiva.isSelected()
             );
 
-            cargarCategorias();
-            limpiar();
+            if (categoriaDAO.actualizar(
+                    categoriaSeleccionada
+            )) {
 
-        } else {
+                mostrarInformacion(
+                        "Categoría actualizada correctamente."
+                );
+
+                cargarCategorias();
+                limpiar();
+
+            } else {
+                mostrarAlerta(
+                        "No se pudo actualizar la categoría."
+                );
+            }
+
+        } catch (SQLException e) {
+
             mostrarAlerta(
-                    "No se pudo actualizar la categoría."
+                    "No fue posible completar la operación."
+            );
+
+            System.err.println(
+                    "Error al actualizar categoría: "
+                            + e.getMessage()
             );
         }
     }
@@ -325,55 +353,69 @@ public class CategoriaController {
             Categoria categoria
     ) {
 
-        if (categoriaDAO.tieneProductos(
-                categoria.getId()
-        )) {
-            mostrarAlerta(
-                    "No puede eliminar la categoría porque tiene productos asociados."
-            );
-            return;
-        }
+        try {
 
-        Alert confirmacion =
-                new Alert(
-                        Alert.AlertType.CONFIRMATION
-                );
-
-        confirmacion.setTitle(
-                "Eliminar categoría"
-        );
-
-        confirmacion.setHeaderText(null);
-
-        confirmacion.setContentText(
-                "¿Desea eliminar la categoría "
-                        + categoria.getNombre()
-                        + "?"
-        );
-
-        Optional<ButtonType> resultado =
-                confirmacion.showAndWait();
-
-        if (resultado.isPresent()
-                && resultado.get()
-                == ButtonType.OK) {
-
-            if (categoriaDAO.eliminar(
+            if (categoriaDAO.tieneProductos(
                     categoria.getId()
             )) {
-
-                mostrarInformacion(
-                        "Categoría eliminada correctamente."
-                );
-
-                cargarCategorias();
-                limpiar();
-
-            } else {
                 mostrarAlerta(
-                        "No se pudo eliminar la categoría."
+                        "No puede eliminar la categoría porque tiene productos asociados."
                 );
+                return;
             }
+
+            Alert confirmacion =
+                    new Alert(
+                            Alert.AlertType.CONFIRMATION
+                    );
+
+            confirmacion.setTitle(
+                    "Eliminar categoría"
+            );
+
+            confirmacion.setHeaderText(null);
+
+            confirmacion.setContentText(
+                    "¿Desea eliminar la categoría "
+                            + categoria.getNombre()
+                            + "?"
+            );
+
+            Optional<ButtonType> resultado =
+                    confirmacion.showAndWait();
+
+            if (resultado.isPresent()
+                    && resultado.get()
+                    == ButtonType.OK) {
+
+                if (categoriaDAO.eliminar(
+                        categoria.getId()
+                )) {
+
+                    mostrarInformacion(
+                            "Categoría eliminada correctamente."
+                    );
+
+                    cargarCategorias();
+                    limpiar();
+
+                } else {
+                    mostrarAlerta(
+                            "No se pudo eliminar la categoría."
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+
+            mostrarAlerta(
+                    "No fue posible completar la operación."
+            );
+
+            System.err.println(
+                    "Error al eliminar categoría: "
+                            + e.getMessage()
+            );
         }
     }
 

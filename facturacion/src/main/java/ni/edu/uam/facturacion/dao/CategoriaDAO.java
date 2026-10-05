@@ -9,12 +9,12 @@ import java.util.List;
 
 public class CategoriaDAO {
 
-    public boolean guardar(Categoria categoria) {
+    public boolean guardar(Categoria categoria) throws SQLException {
         String sql = """
-                INSERT INTO categoria
-                (nombre, activa)
-                VALUES (?, ?)
-                """;
+            INSERT INTO categoria
+            (nombre, activa)
+            VALUES (?, ?)
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -24,10 +24,6 @@ public class CategoriaDAO {
             ps.setBoolean(2, categoria.isActiva());
 
             return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error al guardar categoría: " + e.getMessage());
-            return false;
         }
     }
 
@@ -94,13 +90,12 @@ public class CategoriaDAO {
         return categorias;
     }
 
-    public boolean actualizar(Categoria categoria) {
+    public boolean actualizar(Categoria categoria) throws SQLException {
         String sql = """
-                UPDATE categoria
-                SET nombre = ?,
-                    activa = ?
-                WHERE id = ?
-                """;
+            UPDATE categoria
+            SET nombre = ?, activa = ?
+            WHERE id = ?
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -111,18 +106,14 @@ public class CategoriaDAO {
             ps.setInt(3, categoria.getId());
 
             return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error al actualizar categoría: " + e.getMessage());
-            return false;
         }
     }
 
-    public boolean eliminar(Integer id) {
+    public boolean eliminar(int id) throws SQLException {
         String sql = """
-                DELETE FROM categoria
-                WHERE id = ?
-                """;
+            DELETE FROM categoria
+            WHERE id = ?
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -131,19 +122,15 @@ public class CategoriaDAO {
             ps.setInt(1, id);
 
             return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.out.println("Error al eliminar categoría: " + e.getMessage());
-            return false;
         }
     }
 
-    public boolean existeNombre(String nombre) {
+    public boolean existeNombre(String nombre) throws SQLException {
         String sql = """
-                SELECT COUNT(*)
-                FROM categoria
-                WHERE LOWER(nombre) = LOWER(?)
-                """;
+            SELECT COUNT(*)
+            FROM categoria
+            WHERE LOWER(nombre) = LOWER(?)
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -156,21 +143,22 @@ public class CategoriaDAO {
                     return rs.getInt(1) > 0;
                 }
             }
-
-        } catch (SQLException e) {
-            System.out.println("Error al verificar categoría: " + e.getMessage());
         }
 
         return false;
     }
 
-    public boolean existeNombre(String nombre, Integer idExcluir) {
+    public boolean existeNombre(
+            String nombre,
+            Integer idExcluir
+    ) throws SQLException {
+
         String sql = """
-                SELECT COUNT(*)
-                FROM categoria
-                WHERE LOWER(nombre) = LOWER(?)
-                AND id <> ?
-                """;
+            SELECT COUNT(*)
+            FROM categoria
+            WHERE LOWER(nombre) = LOWER(?)
+            AND id <> ?
+            """;
 
         try (
                 Connection connection = ConexionDB.getConnection();
@@ -184,15 +172,12 @@ public class CategoriaDAO {
                     return rs.getInt(1) > 0;
                 }
             }
-
-        } catch (SQLException e) {
-            System.out.println("Error al verificar categoría: " + e.getMessage());
         }
 
         return false;
     }
 
-    public boolean tieneProductos(int categoriaId) {
+    public boolean tieneProductos(int categoriaId) throws SQLException {
         String sql = """
             SELECT COUNT(*)
             FROM producto
@@ -210,12 +195,6 @@ public class CategoriaDAO {
                     return rs.getInt(1) > 0;
                 }
             }
-
-        } catch (SQLException e) {
-            System.out.println(
-                    "Error al verificar productos asociados: "
-                            + e.getMessage()
-            );
         }
 
         return false;
